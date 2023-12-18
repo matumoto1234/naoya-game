@@ -26,13 +26,82 @@ const BUBBLE_RADIUS = {
   4: 40,
   5: 45,
   6: 50,
-}
+};
 
 const OBJECT_CATEGORIES = {
   WALL: 0x0001,
   BUBBLE: 0x0002,
   BUBBLE_PENDING: 0x0004,
 };
+
+class Bubble {
+  body;
+
+  constructor(x, y, level) {
+    const radius = BUBBLE_RADIUS[level];
+    this.body = Bodies.circle(this.defaultX, 30, radius, {
+      isSleeping: true,
+      label: "bubble_" + level,
+      friction: FRICTION,
+      mass: MASS,
+      collisionFilter: {
+        group: 0,
+        category: OBJECT_CATEGORIES.BUBBLE_PENDING, // まだ落下位置の決定前なのですでにあるバブルと衝突しないようにする
+        mask: OBJECT_CATEGORIES.WALL | OBJECT_CATEGORIES.BUBBLE,
+      },
+      render: {
+        lineWidth: 1,
+        sprite: {
+          texture: BUBBLE_TEXTURES[level],
+        },
+      },
+    });
+  }
+}
+
+class Stage {
+  ground;
+  leftWall;
+  rightWall;
+
+  constructor() {
+    this.ground = Bodies.rectangle(
+      WIDTH / 2,
+      HEIGHT - WALL_T / 2,
+      WIDTH,
+      WALL_T,
+      {
+        isStatic: true,
+        label: "ground",
+        render: {
+          fillStyle: WALL_COLOR,
+        },
+      }
+    );        const newRadius = BUBBLE_RADIUS[newLevel];
+
+    this.leftWall = Bodies.rectangle(WALL_T / 2, HEIGHT / 2, WALL_T, HEIGHT, {
+      isStatic: true,
+      label: "leftWall",
+      render: {
+        fillStyle: WALL_COLOR,
+      },
+    });
+
+    this.rightWall = Bodies.rectangle(
+      WIDTH - WALL_T / 2,
+      HEIGHT / 2,
+      WALL_T,
+      HEIGHT,
+      {
+        isStatic: true,
+        label: "rightWall",
+        render: {
+          fillStyle: WALL_COLOR,
+        },
+      }
+    );
+  }
+}
 
 class BubbleGame {
   engine;
@@ -49,7 +118,7 @@ class BubbleGame {
     this.message = message;
     this.scoreChangeCallBack = scoreChangeCallBack;
     this.engine = Engine.create({
-      constraintIterations: 3
+      constraintIterations: 3,
     });
     this.render = Render.create({
       element: container,
@@ -76,44 +145,10 @@ class BubbleGame {
     // 状態初期化
     this.gameover = false;
     this.setScore(0);
+    const stage = new Stage();
 
-    // 地面と壁作成
-    // 矩形の場合X座標、Y座標、横幅、高さの順に指定、最後にオプションを設定できる
-    const ground = Bodies.rectangle(
-      WIDTH / 2,
-      HEIGHT - WALL_T / 2,
-      WIDTH,
-      WALL_T,
-      {
-        isStatic: true,
-        label: "ground",
-        render: {
-          fillStyle: WALL_COLOR,
-        },
-      }
-    );
-    const leftWall = Bodies.rectangle(WALL_T / 2, HEIGHT / 2, WALL_T, HEIGHT, {
-      isStatic: true,
-      label: "leftWall",
-      render: {
-        fillStyle: WALL_COLOR,
-      },
-    });
-    const rightWall = Bodies.rectangle(
-      WIDTH - WALL_T / 2,
-      HEIGHT / 2,
-      WALL_T,
-      HEIGHT,
-      {
-        isStatic: true,
-        label: "rightWall",
-        render: {
-          fillStyle: WALL_COLOR,
-        },
-      }
-    );
     // 地面と壁を描画
-    Composite.add(this.engine.world, [ground, leftWall, rightWall]);
+    Composite.add(this.engine.world, [stage.ground, stage.leftWall, stage.rightWall]);
     Runner.run(this.runner, this.engine);
 
     // ステータスをゲーム準備完了に
@@ -137,26 +172,7 @@ class BubbleGame {
     }
     // バブルの大きさをランダムに決定
     const level = Math.floor(Math.random() * 5);
-    const radius = BUBBLE_RADIUS[level];
-    // 描画位置のX座標、y座標、円の半径を渡す
-    const currentBubble = Bodies.circle(this.defaultX, 30, radius, {
-      isSleeping: true,
-      label: "bubble_" + level,
-      friction: FRICTION,
-      mass: MASS,
-      collisionFilter: {
-        group: 0,
-        category: OBJECT_CATEGORIES.BUBBLE_PENDING, // まだ落下位置の決定前なのですでにあるバブルと衝突しないようにする
-        mask: OBJECT_CATEGORIES.WALL | OBJECT_CATEGORIES.BUBBLE,
-      },
-      render: {
-        lineWidth: 1,
-        sprite: {
-          texture: BUBBLE_TEXTURES[level],
-        },
-      },
-    });
-    this.currentBubble = currentBubble;
+    this.currentBubble = new Bubble(this.defaultX, 30, level).body;
     Composite.add(this.engine.world, [currentBubble]);
   }
 
@@ -169,7 +185,7 @@ class BubbleGame {
   }
 
   // ゲームオーバー判定
-  // 本家がどうしてるかわからないけど一定以上の高さに上方向の速度を持つオブジェクトが存在している場合ゲームオーバーとする
+  // 一定以上の高さに上方向の速度を持つオブジェクトが存在している場合ゲームオーバーとする
   checkGameOver() {
     const bubbles = Composite.allBodies(this.engine.world).filter((body) =>
       body.label.startsWith("bubble_")
@@ -253,7 +269,7 @@ class BubbleGame {
         const currentBubbleLevel = Number(bodyA.label.substring(7));
         // スコア加算
         this.setScore(this.score + 2 ** currentBubbleLevel);
-        if (currentBubbleLevel === 11) {
+        if (currentBubbleLevel === MAX_LEVEL) {
           // 最大サイズの場合新たなバブルは生まれない
           Composite.remove(this.engine.world, [bodyA, bodyB]);
           continue;
@@ -261,23 +277,7 @@ class BubbleGame {
         const newLevel = currentBubbleLevel + 1;
         const newX = (bodyA.position.x + bodyB.position.x) / 2;
         const newY = (bodyA.position.y + bodyB.position.y) / 2;
-        const newRadius = BUBBLE_RADIUS[newLevel];
-        const newBubble = Bodies.circle(newX, newY, newRadius, {
-          label: "bubble_" + newLevel,
-          friction: FRICTION,
-          mass: MASS,
-          collisionFilter: {
-            group: 0,
-            category: OBJECT_CATEGORIES.BUBBLE,
-            mask: OBJECT_CATEGORIES.WALL | OBJECT_CATEGORIES.BUBBLE,
-          },
-          render: {
-            lineWidth: 1,
-            sprite: {
-              texture: BUBBLE_TEXTURES[newLevel],
-            }
-          },
-        });
+        const newBubble = new Bubble(newX, newY, newLevel).body;
         Composite.remove(this.engine.world, [bodyA, bodyB]);
         Composite.add(this.engine.world, [newBubble]);
       }
@@ -291,7 +291,7 @@ class BubbleGame {
     }
     const { offsetX } = e;
     const currentBubbleRadius =
-      BUBBLE_RADIUS[Number(this.currentBubble.label.substring(7))]
+      BUBBLE_RADIUS[Number(this.currentBubble.label.substring(7))];
     const newX = Math.max(
       Math.min(offsetX, WIDTH - 10 - currentBubbleRadius),
       10 + currentBubbleRadius
