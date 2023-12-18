@@ -172,7 +172,7 @@ class BubbleGame {
     }
     // バブルの大きさをランダムに決定
     const level = Math.floor(Math.random() * 5);
-    this.currentBubble = new Bubble(this.defaultX, 30, level, true).body;
+    this.currentBubble = (new Bubble(this.defaultX, 30, level, true)).body;
     Composite.add(this.engine.world, [this.currentBubble]);
   }
 
@@ -277,7 +277,7 @@ class BubbleGame {
         const newLevel = currentBubbleLevel + 1;
         const newX = (bodyA.position.x + bodyB.position.x) / 2;
         const newY = (bodyA.position.y + bodyB.position.y) / 2;
-        const newBubble = new Bubble(newX, newY, newLevel, false).body;
+        const newBubble = (new Bubble(newX, newY, newLevel, false)).body;
         Composite.remove(this.engine.world, [bodyA, bodyB]);
         Composite.add(this.engine.world, [newBubble]);
       }
