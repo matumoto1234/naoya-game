@@ -40,7 +40,7 @@ class Bubble {
   constructor(x, y, level) {
     const radius = BUBBLE_RADIUS[level];
     this.body = Bodies.circle(x, y, radius, {
-      isSleeping: true,
+      isSleeping: false,
       label: "bubble_" + level,
       friction: FRICTION,
       mass: MASS,
@@ -57,6 +57,11 @@ class Bubble {
       },
     });
   }
+
+  withSleeping(isSleeping) {{
+    this.body.isSleeping = isSleeping;
+    return this
+  }}
 }
 
 class Stage {
@@ -172,7 +177,7 @@ class BubbleGame {
     }
     // バブルの大きさをランダムに決定
     const level = Math.floor(Math.random() * 5);
-    this.currentBubble = new Bubble(this.defaultX, 30, level).body;
+    this.currentBubble = new Bubble(this.defaultX, 30, level).withSleeping().body;
     Composite.add(this.engine.world, [this.currentBubble]);
   }
 
