@@ -77,7 +77,7 @@ class Stage {
           fillStyle: WALL_COLOR,
         },
       }
-    );        const newRadius = BUBBLE_RADIUS[newLevel];
+    );
 
     this.leftWall = Bodies.rectangle(WALL_T / 2, HEIGHT / 2, WALL_T, HEIGHT, {
       isStatic: true,
