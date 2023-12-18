@@ -34,7 +34,7 @@ const OBJECT_CATEGORIES = {
   BUBBLE_PENDING: 0x0004,
 };
 
-class BubbeGame {
+class BubbleGame {
   engine;
   render;
   runner;
@@ -319,7 +319,7 @@ window.onload = () => {
     score.replaceChildren(`Score: ${val}`);
   };
   // とりあえずゲーム作成
-  const game = new BubbeGame(container, message, onChangeScore);
+  const game = new BubbleGame(container, message, onChangeScore);
   // とりあえず初期化する
   game.init();
 };
