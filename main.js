@@ -37,10 +37,10 @@ const OBJECT_CATEGORIES = {
 class Bubble {
   body;
 
-  constructor(x, y, level) {
+  constructor(x, y, level, isSleeping) {
     const radius = BUBBLE_RADIUS[level];
     this.body = Bodies.circle(x, y, radius, {
-      isSleeping: false,
+      isSleeping: isSleeping,
       label: "bubble_" + level,
       friction: FRICTION,
       mass: MASS,
@@ -57,11 +57,6 @@ class Bubble {
       },
     });
   }
-
-  withSleeping(isSleeping) {{
-    this.body.isSleeping = isSleeping;
-    return this
-  }}
 }
 
 class Stage {
@@ -177,7 +172,7 @@ class BubbleGame {
     }
     // バブルの大きさをランダムに決定
     const level = Math.floor(Math.random() * 5);
-    this.currentBubble = new Bubble(this.defaultX, 30, level).withSleeping().body;
+    this.currentBubble = new Bubble(this.defaultX, 30, level, true).body;
     Composite.add(this.engine.world, [this.currentBubble]);
   }
 
@@ -282,7 +277,7 @@ class BubbleGame {
         const newLevel = currentBubbleLevel + 1;
         const newX = (bodyA.position.x + bodyB.position.x) / 2;
         const newY = (bodyA.position.y + bodyB.position.y) / 2;
-        const newBubble = new Bubble(newX, newY, newLevel).body;
+        const newBubble = new Bubble(newX, newY, newLevel, false).body;
         Composite.remove(this.engine.world, [bodyA, bodyB]);
         Composite.add(this.engine.world, [newBubble]);
       }
