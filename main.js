@@ -4,7 +4,7 @@ const { Bodies, Body, Composite, Engine, Events, Render, Runner, Sleeping } =
 const WIDTH = 420; // 横幅
 const HEIGHT = 400; // 高さ
 const WALL_T = 10; // 壁の厚さ
-const DEADLINE = 600; // ゲームオーバーになる高さ
+const DEADLINE = 400; // ゲームオーバーになる高さ
 const FRICTION = 0.3; // 摩擦
 const MASS = 1; // 重量
 const MAX_LEVEL = 7;
@@ -39,7 +39,7 @@ class Bubble {
 
   constructor(x, y, level) {
     const radius = BUBBLE_RADIUS[level];
-    this.body = Bodies.circle(this.defaultX, 30, radius, {
+    this.body = Bodies.circle(x, y, radius, {
       isSleeping: true,
       label: "bubble_" + level,
       friction: FRICTION,
