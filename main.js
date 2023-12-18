@@ -37,7 +37,7 @@ const OBJECT_CATEGORIES = {
 class Bubble {
   body;
 
-  constructor(x, y, level, isSleeping) {
+  constructor(x, y, level, isSleeping, category) {
     const radius = BUBBLE_RADIUS[level];
     this.body = Bodies.circle(x, y, radius, {
       isSleeping: isSleeping,
@@ -46,7 +46,7 @@ class Bubble {
       mass: MASS,
       collisionFilter: {
         group: 0,
-        category: OBJECT_CATEGORIES.BUBBLE_PENDING, // まだ落下位置の決定前なのですでにあるバブルと衝突しないようにする
+        category: category,
         mask: OBJECT_CATEGORIES.WALL | OBJECT_CATEGORIES.BUBBLE,
       },
       render: {
@@ -172,7 +172,7 @@ class BubbleGame {
     }
     // バブルの大きさをランダムに決定
     const level = Math.floor(Math.random() * 5);
-    this.currentBubble = (new Bubble(this.defaultX, 30, level, true)).body;
+    this.currentBubble = (new Bubble(this.defaultX, 30, level, true, OBJECT_CATEGORIES.BUBBLE_PENDING)).body;
     Composite.add(this.engine.world, [this.currentBubble]);
   }
 
@@ -277,7 +277,7 @@ class BubbleGame {
         const newLevel = currentBubbleLevel + 1;
         const newX = (bodyA.position.x + bodyB.position.x) / 2;
         const newY = (bodyA.position.y + bodyB.position.y) / 2;
-        const newBubble = (new Bubble(newX, newY, newLevel, false)).body;
+        const newBubble = (new Bubble(newX, newY, newLevel, false, OBJECT_CATEGORIES.BUBBLE)).body;
         Composite.remove(this.engine.world, [bodyA, bodyB]);
         Composite.add(this.engine.world, [newBubble]);
       }
