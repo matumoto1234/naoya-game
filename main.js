@@ -10,13 +10,13 @@ const MASS = 1; // 重量
 const MAX_LEVEL = 7;
 const WALL_COLOR = "#ccc";
 const BUBBLE_TEXTURES = {
-  0: "/assets/naoya-sleeping-40x40.png",
-  1: "/assets/naoya-helmet-50x50.png",
-  2: "/assets/naoya-chair-outside-60x60.png",
-  3: "/assets/naoya-zsedai-70x70.png",
-  4: "/assets/naoya-dhisney-front-80x80.png",
-  5: "/assets/naoya-dhisney-grasseies-90x90.png",
-  6: "/assets/naoya-dhisney-insta-100x100.png",
+  0: "/naoya-game/assets/naoya-sleeping-40x40.png",
+  1: "/naoya-game/assets/naoya-helmet-50x50.png",
+  2: "/naoya-game/assets/naoya-chair-outside-60x60.png",
+  3: "/naoya-game/assets/naoya-zsedai-70x70.png",
+  4: "/naoya-game/assets/naoya-dhisney-front-80x80.png",
+  5: "/naoya-game/assets/naoya-dhisney-grasseies-90x90.png",
+  6: "/naoya-game/assets/naoya-dhisney-insta-100x100.png",
 };
 const BUBBLE_RADIUS = {
   0: 20,
